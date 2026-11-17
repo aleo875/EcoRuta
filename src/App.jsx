@@ -754,7 +754,15 @@ export default function EcoRutaApp() {
                               <div className="w-5 h-5 bg-blue-500 rounded-full border-2 border-white shadow-md animate-pulse" />
                             </AdvancedMarker>
                           )}
-                          {nearbyPoints.map((punto, index) => {
+                          {nearbyPoints.map((punto) => {
+                            // 1. Extraemos y forzamos a que sean números reales. 
+                            // (Si usaste GeoPoint en Firebase, lo busca ahí también).
+                            const lat = Number(punto.lat || punto.coordenadas?.latitude || latFallback);
+                            const lng = Number(punto.lng || punto.coordenadas?.longitude || lngFallback);
+
+                            // 2. Si por algún error de Firebase las coordenadas no son válidas, 
+                            // saltamos este punto para que no rompa el resto del mapa.
+                            if (!lat || !lng || isNaN(lat) || isNaN(lng)) return null;
                             return (
                               <AdvancedMarker
                                 key={punto.id}
