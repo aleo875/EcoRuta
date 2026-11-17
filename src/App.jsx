@@ -761,7 +761,7 @@ export default function EcoRutaApp() {
                             const lng = Number(punto.lng || punto.coordenadas?.longitude || lngFallback);
 
                             // 2. Si por algún error de Firebase las coordenadas no son válidas, 
-                            // saltamos este punto para que no rompa el resto del mapa.
+                            // saltamos este punto para que no rompa el resto del mapa. lala
                             if (!lat || !lng || isNaN(lat) || isNaN(lng)) return null;
                             return (
                               <AdvancedMarker
