@@ -339,6 +339,7 @@ export default function EcoRutaApp() {
         id: doc.id,
         ...doc.data()
       }));
+      console.log(puntos)
       setNearbyPoints(puntos);
     });
 
