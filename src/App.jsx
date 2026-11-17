@@ -754,6 +754,7 @@ export default function EcoRutaApp() {
                               <div className="w-5 h-5 bg-blue-500 rounded-full border-2 border-white shadow-md animate-pulse" />
                             </AdvancedMarker>
                           )}
+                          console.log("Mapa actualizado");
                           {nearbyPoints.map((punto) => {
                             // 1. Extraemos y forzamos a que sean números reales. 
                             // (Si usaste GeoPoint en Firebase, lo busca ahí también).
