@@ -550,12 +550,9 @@ export default function EcoRutaApp() {
                 <div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-slate-500">o continúa con</span></div>
               </div>
 
-              <div className="mt-6 grid grid-cols-2 gap-4">
-                <button type="button" onClick={loginConGoogle} className="flex items-center justify-center gap-2 py-2.5 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium text-slate-700">
-                  <span className="text-red-500 font-bold text-lg">G</span> Google
-                </button>
-                <button type="button" className="flex items-center justify-center gap-2 py-2.5 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium text-slate-700">
-                  <span className="text-blue-500 font-bold text-lg">M</span> Microsoft
+              <div className="mt-6">
+                <button type="button" onClick={loginConGoogle} className="w-full flex items-center justify-center gap-2 py-2.5 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium text-slate-700">
+                  <span className="text-red-500 font-bold text-lg">G</span> Continuar con Google
                 </button>
               </div>
             </div>
