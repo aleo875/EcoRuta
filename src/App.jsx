@@ -9,7 +9,7 @@ import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signO
 import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, getDocs, addDoc, serverTimestamp, arrayUnion, query, orderBy, limit } from 'firebase/firestore';
 import { APIProvider, Map, AdvancedMarker, Pin, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
-import { Marker, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
+import { Marker } from '@vis.gl/react-google-maps';
 
 
 // ============================================================================
