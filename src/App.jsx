@@ -758,35 +758,32 @@ export default function EcoRutaApp() {
 
                           {/* Marcadores de Firebase */}
                           {nearbyPoints.map((punto) => {
-                            // 1. Extraemos las coordenadas de forma segura
-                            let lat = punto.lat;
-                            let lng = punto.lng;
-
-                            if (punto.coordenadas) {
-                              lat = punto.coordenadas.latitude || punto.coordenadas._lat;
-                              lng = punto.coordenadas.longitude || punto.coordenadas._long;
-                            }
+                            // 1. Intentamos leer las coordenadas de todas las formas posibles
+                            let lat = punto.lat || punto.coordenadas?.latitude || punto.coordenadas?._lat;
+                            let lng = punto.lng || punto.coordenadas?.longitude || punto.coordenadas?._long;
 
                             lat = Number(lat);
                             lng = Number(lng);
 
-                            // 2. Si las coordenadas están rotas, ignoramos el punto
-                            if (!lat || !lng || isNaN(lat) || isNaN(lng)) return null;
+                            // Chismoso 1: Ver qué números obtuvo realmente
+                            console.log(`Evaluando punto: ${punto.nombre || punto.id}`, { lat, lng });
 
-                            // 3. Dibujamos el marcador (ahora sí funcionará gracias al DEMO_MAP_ID)
+                            // 2. Si las coordenadas están rotas, lo reportamos y lo ignoramos
+                            if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+                              console.warn(`❌ Descartado: ${punto.id} por coordenadas inválidas.`);
+                              return null;
+                            }
+
+                            // Chismoso 2: Confirmar que pasó el filtro y se va a dibujar
+                            console.log(`✅ Dibujando: ${punto.id} en ${lat}, ${lng}`);
+
+                            // 3. Dibujamos el marcador clásico a prueba de fallos
                             return (
-                              <AdvancedMarker
+                              <Marker
                                 key={punto.id}
                                 position={{ lat, lng }}
-                                title={punto.nombre || "Punto de reciclaje"}
-                                onClick={() => setPuntoSeleccionado(punto)}
-                              >
-                                <Pin
-                                  background={punto.tipo === "Centro de acopio" ? '#22c55e' : '#3b82f6'}
-                                  borderColor={'#ffffff'}
-                                  glyphColor={'#ffffff'}
-                                />
-                              </AdvancedMarker>
+                                title={punto.nombre || punto.id}
+                              />
                             );
                           })}
                         </Map>
