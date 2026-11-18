@@ -9,7 +9,7 @@ import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signO
 import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, getDocs, addDoc, serverTimestamp, arrayUnion, query, orderBy, limit } from 'firebase/firestore';
 import { APIProvider, Map, AdvancedMarker, Pin, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
-import { Marker } from '@vis.gl/react-google-maps';
+import { Marker, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
 
 
 // ============================================================================
@@ -749,15 +749,16 @@ export default function EcoRutaApp() {
                           defaultZoom={12}
                           mapId="MAPA_ECORUTA_ID"
                         >
-                          {/* Marcador del usuario (Punto azul animado) */}
+                          {/* Marcador del usuario (Punto azul) */}
                           {ubicacionUsuario && (
                             <AdvancedMarker position={ubicacionUsuario} title="Tú estás aquí">
                               <div className="w-5 h-5 bg-blue-500 rounded-full border-2 border-white shadow-md animate-pulse" />
                             </AdvancedMarker>
                           )}
-                          console.log("Mapa actualizado");
+
+                          {/* Marcadores de Firebase */}
                           {nearbyPoints.map((punto) => {
-                            // 1. Sacamos las coordenadas (ya sea que vengan sueltas o en el objeto 'coordenadas')
+                            // 1. Extraemos las coordenadas de forma segura
                             let lat = punto.lat;
                             let lng = punto.lng;
 
@@ -769,21 +770,25 @@ export default function EcoRutaApp() {
                             lat = Number(lat);
                             lng = Number(lng);
 
-                            // 2. Si no es un número válido, lo ignoramos
+                            // 2. Si las coordenadas están rotas, ignoramos el punto
                             if (!lat || !lng || isNaN(lat) || isNaN(lng)) return null;
 
-                            // 3. Dibujamos el marcador clásico (no requiere mapId ni <Pin>)
+                            // 3. Dibujamos el marcador (ahora sí funcionará gracias al DEMO_MAP_ID)
                             return (
-                              <Marker
+                              <AdvancedMarker
                                 key={punto.id}
                                 position={{ lat, lng }}
-                                title={punto.nombre || punto.id}
+                                title={punto.nombre || "Punto de reciclaje"}
                                 onClick={() => setPuntoSeleccionado(punto)}
-                              />
+                              >
+                                <Pin
+                                  background={punto.tipo === "Centro de acopio" ? '#22c55e' : '#3b82f6'}
+                                  borderColor={'#ffffff'}
+                                  glyphColor={'#ffffff'}
+                                />
+                              </AdvancedMarker>
                             );
                           })}
-
-
                         </Map>
                       </APIProvider>
 
