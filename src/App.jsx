@@ -9,6 +9,7 @@ import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signO
 import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, getDocs, addDoc, serverTimestamp, arrayUnion, query, orderBy, limit } from 'firebase/firestore';
 import { APIProvider, Map, AdvancedMarker, Pin, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { Map, Marker } from '@vis.gl/react-google-maps';
 
 
 // ============================================================================
@@ -756,29 +757,29 @@ export default function EcoRutaApp() {
                           )}
                           console.log("Mapa actualizado");
                           {nearbyPoints.map((punto) => {
-                            // 1. Buscamos la coordenada en las diferentes formas en que Firebase pudo guardarla
-                            const lat = parseFloat(punto.lat) || parseFloat(punto.coordenadas?.latitude) || parseFloat(punto.coordenadas?._lat);
-                            const lng = parseFloat(punto.lng) || parseFloat(punto.coordenadas?.longitude) || parseFloat(punto.coordenadas?._long);
+                            // 1. Sacamos las coordenadas (ya sea que vengan sueltas o en el objeto 'coordenadas')
+                            let lat = punto.lat;
+                            let lng = punto.lng;
 
-                            // 2. Si no hay coordenadas reales, lo ignoramos por completo (sin fallbacks)
-                            if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-                              return null;
+                            if (punto.coordenadas) {
+                              lat = punto.coordenadas.latitude || punto.coordenadas._lat;
+                              lng = punto.coordenadas.longitude || punto.coordenadas._long;
                             }
 
-                            // 3. Dibujamos solo los que tienen coordenadas reales
+                            lat = Number(lat);
+                            lng = Number(lng);
+
+                            // 2. Si no es un número válido, lo ignoramos
+                            if (!lat || !lng || isNaN(lat) || isNaN(lng)) return null;
+
+                            // 3. Dibujamos el marcador clásico (no requiere mapId ni <Pin>)
                             return (
-                              <AdvancedMarker
+                              <Marker
                                 key={punto.id}
                                 position={{ lat, lng }}
-                                title={punto.nombre || "Punto de reciclaje"}
+                                title={punto.nombre || punto.id}
                                 onClick={() => setPuntoSeleccionado(punto)}
-                              >
-                                <Pin
-                                  background={punto.tipo === "Centro de acopio" ? '#22c55e' : '#3b82f6'}
-                                  borderColor={'#ffffff'}
-                                  glyphColor={'#ffffff'}
-                                />
-                              </AdvancedMarker>
+                              />
                             );
                           })}
 
