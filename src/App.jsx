@@ -779,11 +779,8 @@ export default function EcoRutaApp() {
                               </AdvancedMarker>
                             );
                           })}
-                          {/* Componente invisible que dibuja la ruta */}
-                          <TrazadorDeRutas
-                            origen={ubicacionUsuario}
-                            destino={puntoSeleccionado ? { lat: puntoSeleccionado.lat, lng: puntoSeleccionado.lng } : null}
-                          />
+                          
+                          
                         </Map>
                       </APIProvider>
 
