@@ -384,21 +384,14 @@ export default function EcoRutaApp() {
     const fetchPublicPoints = async () => {
       try {
         const querySnapshot = await getDocs(publicPointsRef);
-        if (querySnapshot.empty) {
-          // Poblar datos de prueba si la colección está vacía para que el mapa no se vea en blanco
-          const dummyPoints = [
-            { id: '1', nombre: "Centro de Reciclaje Av. Reforma", tipo: "Centro de acopio", estado: "Abierto", distancia: "1.2 km" },
-            { id: '2', nombre: "Contenedores Parque Central", tipo: "Contenedor", estado: "Abierto", distancia: "3.5 km" },
-            { id: '3', nombre: "Taller Comunitario Zona Sur", tipo: "Talleres / Eventos", estado: "Cerrado", distancia: "5.0 km" }
-          ];
-          dummyPoints.forEach(async (point) => {
-            await addDoc(publicPointsRef, point);
-          });
-          setNearbyPoints(dummyPoints);
-        } else {
+        
+        // BORRAMOS EL BLOQUE "if (querySnapshot.empty)" CON LOS dummyPoints
+        // Si hay datos en esa ruta, los agregamos. Si no, dejamos los reales que ya cargó el otro useEffect.
+        if (!querySnapshot.empty) {
           const points = [];
           querySnapshot.forEach((doc) => points.push({ id: doc.id, ...doc.data() }));
-          setNearbyPoints(points);
+          // Solo actualizamos si realmente encontró algo aquí
+          setNearbyPoints(points); 
         }
       } catch (error) {
         console.error("Error obteniendo puntos:", error);
