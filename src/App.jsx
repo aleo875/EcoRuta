@@ -756,25 +756,21 @@ export default function EcoRutaApp() {
                           )}
                           console.log("Mapa actualizado");
                           {nearbyPoints.map((punto) => {
-                            // 1. Extraemos y forzamos a que sean números reales. 
-                            // (Si usaste GeoPoint en Firebase, lo busca ahí también).
-                            const lat = Number(punto.lat || punto.coordenadas?.latitude || latFallback);
-                            const lng = Number(punto.lng || punto.coordenadas?.longitude || lngFallback);
+                            // 1. Buscamos la coordenada en las diferentes formas en que Firebase pudo guardarla
+                            const lat = parseFloat(punto.lat) || parseFloat(punto.coordenadas?.latitude) || parseFloat(punto.coordenadas?._lat);
+                            const lng = parseFloat(punto.lng) || parseFloat(punto.coordenadas?.longitude) || parseFloat(punto.coordenadas?._long);
 
-                            // Este console.log nos dirá si los puntos llegan vivos a este paso
-                            console.log(`Intentando dibujar: ${punto.nombre || punto.id} | Lat: ${lat}, Lng: ${lng}`);
-
-                            // 2. Si por algún error de Firebase las coordenadas no son válidas, 
-                            // saltamos este punto para que no rompa el resto del mapa. lalala
+                            // 2. Si no hay coordenadas reales, lo ignoramos por completo (sin fallbacks)
                             if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-                              console.log(`❌ Escudo activado: Se bloqueó ${punto.id} porque sus coordenadas no son válidas.`);
                               return null;
                             }
+
+                            // 3. Dibujamos solo los que tienen coordenadas reales
                             return (
                               <AdvancedMarker
                                 key={punto.id}
-                                position={{ lat: punto.lat || latFallback, lng: punto.lng || lngFallback }}
-                                title={punto.nombre}
+                                position={{ lat, lng }}
+                                title={punto.nombre || "Punto de reciclaje"}
                                 onClick={() => setPuntoSeleccionado(punto)}
                               >
                                 <Pin
