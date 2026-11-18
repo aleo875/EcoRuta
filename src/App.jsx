@@ -1240,39 +1240,39 @@ function MapMarker({ top, left, color, delay }) {
   );
 }
 
-function TrazadorDeRutas({ origen, destino }) {
-  const map = useMap();
-  const routesLibrary = useMapsLibrary('routes');
-  const [directionsService, setDirectionsService] = useState(null);
-  const [directionsRenderer, setDirectionsRenderer] = useState(null);
+//function TrazadorDeRutas({ origen, destino }) {
+  //const map = useMap();
+  //const routesLibrary = useMapsLibrary('routes');
+  //const [directionsService, setDirectionsService] = useState(null);
+  //const [directionsRenderer, setDirectionsRenderer] = useState(null);
 
   // Configuramos los servicios de rutas de Google
-  useEffect(() => {
-    if (!routesLibrary || !map) return;
-    setDirectionsService(new routesLibrary.DirectionsService());
+ // useEffect(() => {
+   // if (!routesLibrary || !map) return;
+   // setDirectionsService(new routesLibrary.DirectionsService());
     // suppressMarkers: true evita que Google dibuje sus propios pines feos de "A" y "B" encima de los nuestros
-    setDirectionsRenderer(new routesLibrary.DirectionsRenderer({ map: map, suppressMarkers: true }));
-  }, [routesLibrary, map]);
+   // setDirectionsRenderer(new routesLibrary.DirectionsRenderer({ map: map, suppressMarkers: true }));
+ // }, [routesLibrary, map]);
 
   // Dibujamos la ruta cuando seleccionas un punto
-  useEffect(() => {
-    if (!directionsService || !directionsRenderer) return;
+ // useEffect(() => {
+  //  if (!directionsService || !directionsRenderer) return;
 
-    if (!origen || !destino) {
-      directionsRenderer.setDirections({ routes: [] }); // Borra la línea si deseleccionas
-      return;
-    }
+  //  if (!origen || !destino) {
+   //   directionsRenderer.setDirections({ routes: [] }); // Borra la línea si deseleccionas
+   //   return;
+   // }
 
-    directionsService.route({
-      origin: origen,
-      destination: destino,
-      travelMode: 'DRIVING' // Puedes cambiarlo a 'WALKING' si prefieres
-    })
-      .then(response => {
-        directionsRenderer.setDirections(response);
-      })
-      .catch(e => console.error("Error dibujando la ruta: ", e));
-  }, [directionsService, directionsRenderer, origen, destino]);
+   // directionsService.route({
+     // origin: origen,
+    //  destination: destino,
+    //  travelMode: 'DRIVING' // Puedes cambiarlo a 'WALKING' si prefieres
+   // })
+    //  .then(response => {
+     //   directionsRenderer.setDirections(response);
+     // })
+     // .catch(e => console.error("Error dibujando la ruta: ", e));
+ // }, [directionsService, directionsRenderer, origen, destino]);
 
-  return null;
-}
+//  return null;
+//}
