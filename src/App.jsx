@@ -10,7 +10,7 @@ import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, getDocs, add
 import { APIProvider, Map, AdvancedMarker, Pin, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { Marker } from '@vis.gl/react-google-maps';
-import { Link } from 'react-router-dom';
+import { Link, Routes, Route } from 'react-router-dom';
 import ExplorarPuntos from './ExplorarPuntos';
 
 // ============================================================================
@@ -32,7 +32,7 @@ const appId = typeof __app_id !== 'undefined' ? __app_id : 'ecoruta-app-id';
 // ============================================================================
 // 2. COMPONENTE PRINCIPAL
 // ============================================================================
-export default function EcoRutaApp() {
+function Dashboard() {
   // Estados de la aplicación
   const [user, setUser] = useState(null);
   const [currentView, setCurrentView] = useState('login'); // 'login', 'dashboard', 'achievements'
@@ -1173,6 +1173,15 @@ export default function EcoRutaApp() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function EcoRutaApp() {
+  return (
+    <Routes>
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/explorar" element={<ExplorarPuntos />} />
+    </Routes>
   );
 }
 
