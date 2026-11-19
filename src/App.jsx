@@ -10,7 +10,8 @@ import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, getDocs, add
 import { APIProvider, Map, AdvancedMarker, Pin, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { Marker } from '@vis.gl/react-google-maps';
-
+import { Link } from 'react-router-dom';
+import ExplorarPuntos from './ExplorarPuntos';
 
 // ============================================================================
 // 1. CONFIGURACIÓN DE FIREBASE (Reglas de entorno estricto)
@@ -713,7 +714,13 @@ export default function EcoRutaApp() {
                   <div className="bg-white p-1 rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="p-4 border-b border-slate-100 flex justify-between items-center">
                       <h3 className="font-bold text-lg text-slate-800">Puntos de reciclaje cercanos</h3>
-                      <button className="text-sm text-green-600 font-medium hover:underline">Ver todos</button>
+                      {/* Reemplazamos el texto estático por un Link */}
+                      <Link
+                        to="/explorar"
+                        className="text-green-600 hover:text-green-800 text-sm font-semibold cursor-pointer"
+                      >
+                        Ver todos
+                      </Link>
                     </div>
 
                     {/* Contenedor del Mapa Real de Google */}
