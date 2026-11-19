@@ -41,7 +41,7 @@ const ExplorarPuntos = () => {
       <h1 className="text-3xl font-bold mb-6 text-gray-800">Directorio de Puntos de Reciclaje</h1>
       
       {/* 3. Botones de filtro dinámicos */}
-      <div className="flex flex-wrap gap-3 mb-8">
+      {/* <div className="flex flex-wrap gap-3 mb-8">
         {['Todos', 'Plástico', 'Electrónicos', 'Cartón', 'Vidrio'].map(categoria => (
           <button 
             key={categoria}

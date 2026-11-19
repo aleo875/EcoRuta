@@ -58,6 +58,7 @@ function Dashboard() {
   const [esRegistro, setEsRegistro] = useState(false);
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // 2. Función para manejar el inicio de sesión o registro
   const manejarAcceso = async (e) => {
@@ -483,18 +484,25 @@ function Dashboard() {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Lock className="h-5 w-5 text-slate-400" />
                   </div>
-                  {/* Input dinámico de contraseña */}
+
+                  {/* 1. Modificamos el type de este input */}
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required
                     placeholder="••••••••"
                     className="w-full pl-10 pr-10 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer text-slate-400 hover:text-slate-600">
+
+                  {/* 2. Cambiamos el div por un button tipo "button" y le agregamos el onClick */}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer text-slate-400 hover:text-slate-600"
+                  >
                     <Eye className="h-5 w-5" />
-                  </div>
+                  </button>
                 </div>
               </div>
 
