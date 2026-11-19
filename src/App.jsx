@@ -23,7 +23,6 @@ const firebaseConfig = {
   storageBucket: "ecorutabd.firebasestorage.app",
   messagingSenderId: "605031175505",
   appId: "1:605031175505:web:20a9d11aa3b0d079326f70",
-  measurementId: "G-XG4B0JCNSD"
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
