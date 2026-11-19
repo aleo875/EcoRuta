@@ -10,7 +10,7 @@ const ExplorarPuntos = () => {
         // Aquí puedes reciclar tu código para traer TODOS los puntos de Firebase
         const fetchTodosLosPuntos = async () => {
             // Ajusta tu appId o ruta de Firebase según tu proyecto
-            const ref = collection(db, 'artifacts', 'TU_APP_ID', 'public', 'data', 'puntos_reciclaje');
+            const ref = collection(db, 'artifacts', '1:605031175505:web:20a9d11aa3b0d079326f70', 'public', 'data', 'puntos_reciclaje');
             const snapshot = await getDocs(ref);
             const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setPuntos(data);
