@@ -381,27 +381,9 @@ export default function EcoRutaApp() {
       }
     };
 
-    const fetchPublicPoints = async () => {
-      try {
-        const querySnapshot = await getDocs(publicPointsRef);
-        
-        // BORRAMOS EL BLOQUE "if (querySnapshot.empty)" CON LOS dummyPoints
-        // Si hay datos en esa ruta, los agregamos. Si no, dejamos los reales que ya cargó el otro useEffect.
-        if (!querySnapshot.empty) {
-          const points = [];
-          querySnapshot.forEach((doc) => points.push({ id: doc.id, ...doc.data() }));
-          // Solo actualizamos si realmente encontró algo aquí
-          setNearbyPoints(points); 
-        }
-      } catch (error) {
-        console.error("Error obteniendo puntos:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
 
     fetchOrInitializeUserData();
-    fetchPublicPoints();
+
 
     // Escuchar cambios en tiempo real de los datos del usuario
     const unsubscribeUser = onSnapshot(userDocRef, (doc) => {
@@ -749,34 +731,32 @@ export default function EcoRutaApp() {
                             </AdvancedMarker>
                           )}
 
+                          {/* Marcador del usuario (Punto azul) */}
+                          {ubicacionUsuario && (
+                            <AdvancedMarker position={ubicacionUsuario} title="Tú estás aquí">
+                              <div className="w-5 h-5 bg-blue-500 rounded-full border-2 border-white shadow-md animate-pulse" />
+                            </AdvancedMarker>
+                          )}
+
                           {/* Marcadores de Firebase */}
                           {nearbyPoints.map((punto) => {
-                            // 1. Intentamos leer las coordenadas de todas las formas posibles
                             let lat = punto.lat || punto.coordenadas?.latitude || punto.coordenadas?._lat;
                             let lng = punto.lng || punto.coordenadas?.longitude || punto.coordenadas?._long;
 
                             lat = Number(lat);
                             lng = Number(lng);
 
-                            // Chismoso 1: Ver qué números obtuvo realmente
-                            console.log(`Evaluando punto: ${punto.nombre || punto.id}`, { lat, lng });
+                            if (!lat || !lng || isNaN(lat) || isNaN(lng)) return null;
 
-                            // 2. Si las coordenadas están rotas, lo reportamos y lo ignoramos
-                            if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-                              console.warn(`❌ Descartado: ${punto.id} por coordenadas inválidas.`);
-                              return null;
-                            }
-
-                            // Chismoso 2: Confirmar que pasó el filtro y se va a dibujar
-                            console.log(`✅ Dibujando: ${punto.id} en ${lat}, ${lng}`);
-
-                            // 3. Dibujamos el marcador clásico a prueba de fallos
                             return (
-                              <Marker
+                              <AdvancedMarker
                                 key={punto.id}
                                 position={{ lat, lng }}
                                 title={punto.nombre || punto.id}
-                              />
+                                onClick={() => setPuntoSeleccionado(punto)}
+                              >
+                                <Pin background={'#22c55e'} borderColor={'#ffffff'} glyphColor={'#ffffff'} />
+                              </AdvancedMarker>
                             );
                           })}
                         </Map>
