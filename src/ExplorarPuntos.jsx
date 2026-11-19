@@ -13,7 +13,7 @@ const ExplorarPuntos = () => {
       try {
         // OJO AQUÍ: Revisa que esta ruta sea EXACTAMENTE la misma que usas en tu mapa
         // Si en tu mapa usas solo collection(db, 'puntos_reciclaje'), cámbialo aquí también.
-        const ref = collection(db, 'artifacts', '1:605031175505:web:20a9d11aa3b0d079326f70', 'public', 'data', 'puntos_reciclaje');
+        const ref = collection(db, "puntos_reciclaje");
         
         const snapshot = await getDocs(ref);
         const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
