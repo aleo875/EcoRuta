@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp} from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 // Reemplaza esto con los datos de TU proyecto de Firebase
@@ -12,7 +12,7 @@ const firebaseConfig = {
 };
 
 // Inicializar Firebase
-const app = initializeApp(firebaseConfig);
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 // Exportar la base de datos para usarla en App.jsx
 export const db = getFirestore(app);
