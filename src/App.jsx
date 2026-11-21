@@ -1035,6 +1035,12 @@ function Dashboard() {
                         ))}
                       </div>
                     </div>
+                    <Link
+                      to="/recompensas"
+                      className="flex items-center justify-center gap-2 mt-4 bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-md w-full sm:w-auto"
+                    >
+                      🎁 Canjear Puntos Eco
+                    </Link>
 
                   </div>
                 </div>
