@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
-// Asume que tienes el UID del usuario logueado (puedes pasarlo por props o contexto)
-// Para este ejemplo, usaremos una variable simulada. Asegúrate de conectarlo a tu Firebase Auth.
-import { getAuth } from 'firebase/auth'; 
+import { getAuth, onAuthStateChanged } from 'firebase/auth'; 
 import { Link } from 'react-router-dom';
 import { Gift, Award, CheckCircle } from 'lucide-react';
 
@@ -16,26 +14,37 @@ const recompensas = [
 export default function CanjearPuntos() {
   const [misPuntos, setMisPuntos] = useState(0);
   const [mensaje, setMensaje] = useState("");
+  // Añadimos un estado para guardar el usuario una vez que Firebase lo confirme
+  const [currentUser, setCurrentUser] = useState(null); 
   const auth = getAuth();
-  const usuario = auth.currentUser;
 
-  // Cargar los puntos del usuario al abrir la pantalla
+  // 1. Escuchar los cambios de sesión
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user); 
+    });
+    return () => unsubscribe(); // Limpiamos el observador
+  }, [auth]);
+
+  // 2. Cargar puntos SOLO cuando currentUser ya tiene los datos reales
   useEffect(() => {
     const cargarPuntos = async () => {
-      if (usuario) {
-        const userRef = doc(db, 'usuarios', usuario.uid);
+      if (currentUser) {
+        const userRef = doc(db, 'usuarios', currentUser.uid); // Asegúrate de que tu colección se llame 'usuarios'
         const docSnap = await getDoc(userRef);
         if (docSnap.exists() && docSnap.data().puntosEco) {
           setMisPuntos(docSnap.data().puntosEco);
         } else {
-          setMisPuntos(0); // Valor por defecto si no tiene puntos aún
+          setMisPuntos(0);
         }
       }
     };
     cargarPuntos();
-  }, [usuario]);
+  }, [currentUser]); // Este efecto se ejecuta cada que currentUser cambia
 
   const manejarCanje = async (premio) => {
+    if (!currentUser) return; // Protección extra
+    
     if (misPuntos < premio.costo) {
       setMensaje(`No tienes suficientes puntos para: ${premio.titulo}`);
       setTimeout(() => setMensaje(""), 3000);
@@ -44,12 +53,10 @@ export default function CanjearPuntos() {
 
     try {
       const nuevosPuntos = misPuntos - premio.costo;
-      const userRef = doc(db, 'usuarios', usuario.uid);
+      const userRef = doc(db, 'usuarios', currentUser.uid);
       
-      // Actualizamos en Firebase
       await updateDoc(userRef, { puntosEco: nuevosPuntos });
       
-      // Actualizamos en la pantalla
       setMisPuntos(nuevosPuntos);
       setMensaje(`¡Felicidades! Has canjeado: ${premio.titulo}`);
       setTimeout(() => setMensaje(""), 3000);
