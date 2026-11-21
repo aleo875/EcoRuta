@@ -12,6 +12,7 @@ import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswor
 import { Marker } from '@vis.gl/react-google-maps';
 import { Link, Routes, Route } from 'react-router-dom';
 import ExplorarPuntos from './ExplorarPuntos';
+import CanjearPuntos from './CanjearPuntos';
 
 // ============================================================================
 // 1. CONFIGURACIÓN DE FIREBASE (Reglas de entorno estricto)
@@ -815,6 +816,12 @@ function Dashboard() {
                     <StatCard icon={<Recycle className="w-6 h-6 text-green-600" />} value={`${userData?.puntosEco || 0} pts`} label="Puntos Eco" />
                     <StatCard icon={<Leaf className="w-6 h-6 text-green-600" />} value={userData?.nivel || "Novato"} label="Nivel actual" />
                     <StatCard icon={<Users className="w-6 h-6 text-green-600" />} value={userData?.medallas?.length || 0} label="Medallas ganadas" />
+                    <Link
+                      to="/recompensas"
+                      className="flex items-center justify-center gap-2 mt-4 bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-md w-full sm:w-auto"
+                    >
+                      🎁 Canjear Puntos Eco
+                    </Link>
                   </div>
                 </div>
               )}
@@ -1189,6 +1196,7 @@ export default function EcoRutaApp() {
     <Routes>
       <Route path="/" element={<Dashboard />} />
       <Route path="/explorar" element={<ExplorarPuntos />} />
+      <Route path="/recompensas" element={<CanjearPuntos />} />
     </Routes>
   );
 }
