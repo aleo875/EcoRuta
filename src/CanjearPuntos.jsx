@@ -30,7 +30,7 @@ export default function CanjearPuntos() {
   useEffect(() => {
     const cargarPuntos = async () => {
       if (currentUser) {
-        const userRef = doc(db, 'users', currentUser.uid); // Asegúrate de que tu colección se llame 'users'
+        const userRef = doc(db, 'usuarios', currentUser.uid); // Asegúrate de que tu colección se llame 'usuarios'
         const docSnap = await getDoc(userRef);
         if (docSnap.exists() && docSnap.data().puntosEco) {
           setMisPuntos(docSnap.data().puntosEco);
@@ -53,7 +53,7 @@ export default function CanjearPuntos() {
 
     try {
       const nuevosPuntos = misPuntos - premio.costo;
-      const userRef = doc(db, 'users', currentUser.uid);
+      const userRef = doc(db, 'usuarios', currentUser.uid);
       
       await updateDoc(userRef, { puntosEco: nuevosPuntos });
       
