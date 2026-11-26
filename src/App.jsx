@@ -378,6 +378,26 @@ function Dashboard() {
   ];
   const cantidadMedallas = medallasReales.filter((m) => m.activa).length;
 
+  // Preferencias actuales del usuario (por defecto: alertas activas, boletín apagado)
+  const alertasPuntos = datosFirebase?.preferencias?.alertasPuntos ?? true;
+  const boletinSemanal = datosFirebase?.preferencias?.boletinSemanal ?? false;
+
+  const cambiarPreferencia = async (campo, nuevoValor) => {
+    if (!usuarioActivo) return;
+    try {
+      const usuarioRef = doc(db, "usuarios", usuarioActivo.uid);
+      await setDoc(usuarioRef, {
+        preferencias: {
+          alertasPuntos,
+          boletinSemanal,
+          [campo]: nuevoValor
+        }
+      }, { merge: true });
+    } catch (error) {
+      console.error("Error al guardar preferencia:", error);
+    }
+  };
+
   // Manejador del Login simulado
   const handleLogin = (e) => {
     e.preventDefault();
@@ -1159,10 +1179,18 @@ function Dashboard() {
                             <h4 className="font-medium text-slate-800">Alertas de nuevos puntos</h4>
                             <p className="text-sm text-slate-500">Recibe un aviso cuando se agreguen contenedores cerca.</p>
                           </div>
-                          {/* Botón Toggle Encendido */}
-                          <div className="w-12 h-6 bg-green-500 rounded-full relative cursor-pointer transition-colors shadow-inner">
-                            <div className="w-4 h-4 bg-white rounded-full absolute top-1 right-1 shadow-sm"></div>
-                          </div>
+                          {/* Toggle 1: Alertas de nuevos puntos */}
+                          <button
+                            type="button"
+                            onClick={() => cambiarPreferencia('alertasPuntos', !alertasPuntos)}
+                            className={`w-12 h-6 rounded-full relative cursor-pointer transition-colors shadow-inner ${alertasPuntos ? 'bg-green-500' : 'bg-slate-200'
+                              }`}
+                          >
+                            <div
+                              className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-transform shadow-sm ${alertasPuntos ? 'translate-x-7' : 'translate-x-1'
+                                }`}
+                            />
+                          </button>
                         </div>
 
                         <div className="py-4 flex items-center justify-between">
@@ -1170,10 +1198,18 @@ function Dashboard() {
                             <h4 className="font-medium text-slate-800">Boletín de Impacto Ambiental</h4>
                             <p className="text-sm text-slate-500">Recibe tu resumen semanal de Puntos Eco por correo.</p>
                           </div>
-                          {/* Botón Toggle Apagado */}
-                          <div className="w-12 h-6 bg-slate-200 rounded-full relative cursor-pointer transition-colors shadow-inner">
-                            <div className="w-4 h-4 bg-white rounded-full absolute top-1 left-1 shadow-sm"></div>
-                          </div>
+                          {/* Toggle 2: Boletín de Impacto Ambiental */}
+                          <button
+                            type="button"
+                            onClick={() => cambiarPreferencia('boletinSemanal', !boletinSemanal)}
+                            className={`w-12 h-6 rounded-full relative cursor-pointer transition-colors shadow-inner ${boletinSemanal ? 'bg-green-500' : 'bg-slate-200'
+                              }`}
+                          >
+                            <div
+                              className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-transform shadow-sm ${boletinSemanal ? 'translate-x-7' : 'translate-x-1'
+                                }`}
+                            />
+                          </button>
                         </div>
 
                       </div>
