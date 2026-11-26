@@ -351,51 +351,32 @@ function Dashboard() {
     return () => unsubscribe();
   }, []);
   // --- Obtención de Datos de Firestore (Reglas 1 y 2) ---
-  useEffect(() => {
-    if (!user) return;
+  // --- Cálculos dinámicos basados en Firebase ---
+  const puntosReales = datosFirebase?.puntos || 0;
+  const nivelReal = datosFirebase?.nivel || "Principiante";
+  const nombreReal = datosFirebase?.nombre || usuarioActivo?.displayName || "Usuario";
 
-    // Referencias a las rutas estructuradas
-    const userDocRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'stats');
-    const publicPointsRef = collection(db, 'artifacts', appId, 'public', 'data', 'puntos_reciclaje');
+  // Sumamos los kilos reales del historial
+  const kilosTotales = (datosFirebase?.historial || []).reduce(
+    (total, item) => total + (parseFloat(item.kilos) || 0),
+    0
+  );
 
-    const fetchOrInitializeUserData = async () => {
-      try {
-        const docSnap = await getDoc(userDocRef);
-        if (docSnap.exists()) {
-          setUserData(docSnap.data());
-        } else {
-          // Si el usuario es nuevo, creamos sus datos base (basado en tu mockup de logros)
-          const newUserData = {
-            nombre: "Alexei Fonseca (Nuevo)",
-            puntosEco: 1500,
-            nivel: "Nivel 3 - Ecoguerrero",
-            co2Ahorrado: 50,
-            arbolesEquivalentes: 2,
-            insignias: [
-              { id: 1, nombre: "Reciclador Inicial", icono: "Recycle", activa: true },
-              { id: 2, nombre: "Eco-Héroe", icono: "Award", activa: true },
-              { id: 3, nombre: "Guardián del Planeta", icono: "Globe", activa: false }
-            ]
-          };
-          await setDoc(userDocRef, newUserData);
-          setUserData(newUserData);
-        }
-      } catch (error) {
-        console.error("Error obteniendo datos de usuario:", error);
-      }
-    };
+  // Impacto ambiental estimado (aprox. 2 kg de CO2 por cada kg reciclado)
+  const co2Real = Math.round(kilosTotales * 2);
+  const arbolesReales = Math.floor(co2Real / 20);
 
+  // Progreso hacia el siguiente nivel
+  const metaSiguienteNivel = puntosReales < 100 ? 100 : puntosReales < 500 ? 500 : 1000;
+  const porcentajeProgreso = Math.min(100, Math.round((puntosReales / metaSiguienteNivel) * 100));
 
-    fetchOrInitializeUserData();
-
-
-    // Escuchar cambios en tiempo real de los datos del usuario
-    const unsubscribeUser = onSnapshot(userDocRef, (doc) => {
-      if (doc.exists()) setUserData(doc.data());
-    }, (error) => console.error(error));
-
-    return () => unsubscribeUser();
-  }, [user]);
+  // Insignias desbloqueables según puntos reales
+  const medallasReales = [
+    { id: 1, nombre: "Reciclador Inicial", icono: "Recycle", activa: puntosReales >= 10 },
+    { id: 2, nombre: "Reciclador Activo", icono: "Award", activa: puntosReales >= 100 },
+    { id: 3, nombre: "Eco-Héroe", icono: "Globe", activa: puntosReales >= 500 }
+  ];
+  const cantidadMedallas = medallasReales.filter((m) => m.activa).length;
 
   // Manejador del Login simulado
   const handleLogin = (e) => {
@@ -740,12 +721,12 @@ function Dashboard() {
                 <div className="max-w-5xl mx-auto space-y-6">
                   <div className="flex justify-between items-end mb-8">
                     <div>
-                      <h2 className="text-3xl font-bold text-slate-800">¡Hola, {userData?.nombre?.split(' ')[0] || 'Usuario'}!</h2>
+                      <h2 className="text-3xl font-bold text-slate-800">¡Hola, {nombreReal.split(' ')[0]}!</h2>
                       <p className="text-slate-500 mt-1">Tu compromiso con el planeta hace la diferencia.</p>
                     </div>
                     <div className="bg-green-100 text-green-700 px-4 py-2 rounded-full font-bold flex items-center gap-2 shadow-sm border border-green-200">
                       <Leaf className="w-4 h-4" />
-                      +2.5 kg hoy
+                      {kilosTotales.toFixed(1)} kg reciclados
                     </div>
                   </div>
 
@@ -844,9 +825,9 @@ function Dashboard() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <StatCard icon={<Recycle className="w-6 h-6 text-green-600" />} value={`${userData?.puntosEco || 0} pts`} label="Puntos Eco" />
-                    <StatCard icon={<Leaf className="w-6 h-6 text-green-600" />} value={userData?.nivel || "Novato"} label="Nivel actual" />
-                    <StatCard icon={<Users className="w-6 h-6 text-green-600" />} value={userData?.medallas?.length || 0} label="Medallas ganadas" />
+                    <StatCard icon={<Recycle className="w-6 h-6 text-green-600" />} value={`${puntosReales} pts`} label="Puntos Eco" />
+                    <StatCard icon={<Leaf className="w-6 h-6 text-green-600" />} value={nivelReal} label="Nivel actual" />
+                    <StatCard icon={<Users className="w-6 h-6 text-green-600" />} value={cantidadMedallas} label="Medallas ganadas" />
                     <Link
                       to="/recompensas"
                       className="flex items-center justify-center gap-2 mt-4 bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition-colors shadow-md w-full sm:w-auto"
@@ -985,19 +966,19 @@ function Dashboard() {
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col items-center text-center md:col-span-1">
                       <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-green-500 to-green-300 p-1 mb-4 shadow-md">
                         <div className="w-full h-full bg-white rounded-full flex items-center justify-center text-3xl font-bold text-green-700">
-                          {userData?.nombre?.charAt(0) || 'U'}
+                          {nombreReal.charAt(0)}
                         </div>
                       </div>
-                      <h3 className="font-bold text-xl text-slate-800">{userData?.nombre || 'Usuario'}</h3>
-                      <p className="text-green-600 font-medium text-sm mb-6">{userData?.nivel || 'Nivel 1'}</p>
+                      <h3 className="font-bold text-xl text-slate-800">{nombreReal}</h3>
+                      <p className="text-green-600 font-medium text-sm mb-6">{nivelReal}</p>
 
                       <div className="w-full space-y-2">
                         <div className="flex justify-between text-xs font-bold text-slate-500">
-                          <span>Progreso al Nivel 4</span>
+                          <span>Siguiente nivel</span>
                           <span className="text-green-600">320 / 500 pts</span>
                         </div>
                         <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                          <div className="bg-green-500 h-2.5 rounded-full" style={{ width: '64%' }}></div>
+                          <div className="bg-green-500 h-2.5 rounded-full" style={{ width: `${porcentajeProgreso}%` }}></div>
                         </div>
                       </div>
                     </div>
@@ -1006,9 +987,9 @@ function Dashboard() {
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:col-span-1 flex flex-col items-center justify-center text-center relative overflow-hidden group">
                       <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-100 rounded-bl-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
                       <Award className="w-16 h-16 text-yellow-500 mb-4 relative z-10" />
-                      <h4 className="font-bold text-lg text-slate-800 relative z-10">Eco-Héroe</h4>
+                      <h4 className="font-bold text-lg text-slate-800 relative z-10">{nivelReal}</h4>
                       <p className="text-xs text-green-600 font-bold mb-2 relative z-10">¡Felicidades!</p>
-                      <p className="text-slate-500 text-sm relative z-10">Has alcanzado el nivel Eco-Héroe por tu compromiso con el reciclaje.</p>
+                      <p className="text-slate-500 text-sm relative z-10">{puntosReales > 0 ? '¡Sigue así! Tu esfuerzo ayuda al planeta.' : 'Registra tu primer reciclaje para subir de nivel.'}</p>
                     </div>
 
                     {/* Tarjeta de Puntos Totales */}
@@ -1016,7 +997,7 @@ function Dashboard() {
                       <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mb-4 shadow-sm border border-green-100">
                         <Leaf className="w-8 h-8 text-green-600" />
                       </div>
-                      <h4 className="font-black text-3xl text-slate-800">{userData?.puntosEco?.toLocaleString() || '0'}</h4>
+                      <h4 className="font-black text-3xl text-slate-800">{puntosReales.toLocaleString()}</h4>
                       <p className="text-slate-500 font-medium mb-4">Puntos Eco</p>
                       <button className="text-sm font-bold text-green-600 hover:text-green-700 flex items-center gap-1">
                         Sigue reciclando <TrendingUp className="w-4 h-4" />
@@ -1032,7 +1013,7 @@ function Dashboard() {
                           <circle cx="50" cy="50" r="40" stroke="#16a34a" strokeWidth="12" fill="none" strokeDasharray="251.2" strokeDashoffset="62.8" className="transition-all duration-1000 ease-out" />
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                          <span className="text-2xl font-black text-slate-800">{userData?.co2Ahorrado || 0} kg</span>
+                          <span className="text-2xl font-black text-slate-800">{co2Real} kg</span>
                           <span className="text-[10px] font-bold text-slate-500 leading-tight">CO₂<br />ahorrados</span>
                         </div>
                       </div>
@@ -1040,11 +1021,11 @@ function Dashboard() {
                       <div>
                         <h4 className="font-bold text-lg text-slate-800 mb-2">Tu impacto ambiental</h4>
                         <p className="text-slate-600 text-sm mb-4">
-                          Has evitado la emisión de {userData?.co2Ahorrado || 0} kg de CO₂ gracias a tus acciones de reciclaje constante.
+                          Has evitado la emisión de {co2Real} kg de CO₂ gracias a tus acciones de reciclaje constante.
                         </p>
                         <div className="flex items-center gap-2 text-green-700 font-medium bg-green-50 p-3 rounded-lg border border-green-100 w-fit">
                           <Leaf className="w-5 h-5 text-green-600" />
-                          <span>Equivale a plantar <strong className="font-bold">{userData?.arbolesEquivalentes || 0} árboles</strong></span>
+                          <span>Equivale a plantar <strong className="font-bold">{arbolesReales} árboles</strong></span>
                         </div>
                       </div>
                     </div>
@@ -1053,7 +1034,7 @@ function Dashboard() {
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:col-span-1">
                       <h4 className="font-bold text-lg text-slate-800 mb-4">Tus insignias</h4>
                       <div className="grid grid-cols-3 gap-3">
-                        {userData?.insignias?.map((badge, index) => (
+                        {medallasReales.map((badge, index) => (
                           <div key={index} className={`flex flex-col items-center text-center gap-2 p-2 rounded-xl transition-all ${badge.activa ? 'bg-slate-50 hover:bg-green-50 border border-slate-100 cursor-pointer' : 'opacity-40 grayscale'}`}>
                             <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm ${badge.activa ? 'bg-white text-green-600' : 'bg-slate-200 text-slate-500'}`}>
                               {badge.icono === 'Recycle' && <Recycle className="w-6 h-6" />}
