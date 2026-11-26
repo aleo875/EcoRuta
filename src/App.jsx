@@ -13,6 +13,7 @@ import { Marker } from '@vis.gl/react-google-maps';
 import { Link, Routes, Route } from 'react-router-dom';
 import ExplorarPuntos from './ExplorarPuntos';
 import CanjearPuntos from './CanjearPuntos';
+import { Menu, X } from 'lucide-react'; // Agrega Menu y X a tus imports
 
 // ============================================================================
 // 1. CONFIGURACIÓN DE FIREBASE (Reglas de entorno estricto)
@@ -60,6 +61,7 @@ function Dashboard() {
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [menuAbierto, setMenuAbierto] = useState(false);
 
   // 2. Función para manejar el inicio de sesión o registro
   const manejarAcceso = async (e) => {
@@ -564,20 +566,42 @@ function Dashboard() {
   return (
     <div className="h-screen flex bg-slate-100 font-sans overflow-hidden">
 
+      {/* Fondo oscuro semitransparente al abrir menú en celular */}
+      {menuAbierto && (
+        <div
+          onClick={() => setMenuAbierto(false)}
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
+        />
+      )}
+
       {/* Sidebar Navigation */}
-      <div className="w-64 bg-[#112a22] text-slate-300 flex flex-col shadow-xl z-20">
-        <div className="p-6 flex items-center gap-3 text-white mb-4">
-          <Leaf className="w-8 h-8 text-green-400" />
-          <h1 className="text-2xl font-bold tracking-wide">EcoRuta</h1>
+      <div className={`
+        fixed inset-y-0 left-0 z-40 w-64 bg-[#112a22] text-slate-300 flex flex-col shadow-xl
+        transform transition-transform duration-300 ease-in-out
+        ${menuAbierto ? 'translate-x-0' : '-translate-x-full'}
+        md:static md:translate-x-0
+      `}>
+        <div className="p-6 flex items-center justify-between text-white mb-4">
+          <div className="flex items-center gap-3">
+            <Leaf className="w-8 h-8 text-green-400" />
+            <h1 className="text-2xl font-bold tracking-wide">EcoRuta</h1>
+          </div>
+          {/* Botón X para cerrar en celular */}
+          <button
+            onClick={() => setMenuAbierto(false)}
+            className="md:hidden p-1 text-slate-300 hover:text-white"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
 
         <nav className="flex-1 px-4 space-y-2">
-          <NavItem icon={<MapIcon />} label="Inicio / Mapa" active={currentView === 'dashboard'} onClick={() => setCurrentView('dashboard')} />
-          <NavItem icon={<Recycle />} label="Reciclaje" active={currentView === 'recycling'} onClick={() => setCurrentView('recycling')} />
-          <NavItem icon={<MapPin />} label="Mis puntos" active={currentView === 'points'} onClick={() => setCurrentView('points')} />
-          <NavItem icon={<Trophy />} label="Logros" active={currentView === 'achievements'} onClick={() => setCurrentView('achievements')} />
-          <NavItem icon={<Users />} label="Comunidad" active={currentView === 'community'} onClick={() => setCurrentView('community')} />
-          <NavItem icon={<Settings />} label="Configuración" active={currentView === 'settings'} onClick={() => setCurrentView('settings')} />
+          <NavItem icon={<MapIcon />} label="Inicio / Mapa" active={currentView === 'dashboard'} onClick={() => { setCurrentView('dashboard'); setMenuAbierto(false); }} />
+          <NavItem icon={<Recycle />} label="Reciclaje" active={currentView === 'recycling'} onClick={() => { setCurrentView('recycling'); setMenuAbierto(false); }} />
+          <NavItem icon={<MapPin />} label="Mis puntos" active={currentView === 'points'} onClick={() => { setCurrentView('points'); setMenuAbierto(false); }} />
+          <NavItem icon={<Trophy />} label="Logros" active={currentView === 'achievements'} onClick={() => { setCurrentView('achievements'); setMenuAbierto(false); }} />
+          <NavItem icon={<Users />} label="Comunidad" active={currentView === 'community'} onClick={() => { setCurrentView('community'); setMenuAbierto(false); }} />
+          <NavItem icon={<Settings />} label="Configuración" active={currentView === 'settings'} onClick={() => { setCurrentView('settings'); setMenuAbierto(false); }} />
         </nav>
 
         <div className="p-4 border-t border-slate-700/50 mt-auto">
@@ -597,6 +621,13 @@ function Dashboard() {
 
         {/* Topbar */}
         <header className="h-16 bg-white shadow-sm flex items-center justify-between px-8 z-10 shrink-0">
+          {/* Botón hamburguesa (solo visible en celular) */}
+          <button
+            onClick={() => setMenuAbierto(true)}
+            className="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
           <div className="flex-1 max-w-md relative">
             <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
