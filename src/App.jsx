@@ -62,6 +62,7 @@ function Dashboard() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
 
   // 2. Función para manejar el inicio de sesión o registro
   const manejarAcceso = async (e) => {
@@ -398,6 +399,18 @@ function Dashboard() {
     }
   };
 
+  // Filtrado en tiempo real para la barra de búsqueda y el mapa
+  const puntosFiltrados = nearbyPoints.filter((punto) => {
+    const texto = busqueda.toLowerCase().trim();
+    if (!texto) return true;
+
+    const nombre = (punto.nombre || "").toLowerCase();
+    const tipo = (punto.tipo || "").toLowerCase();
+    const direccion = (punto.dirección || punto.direccion || "").toLowerCase();
+
+    return nombre.includes(texto) || tipo.includes(texto) || direccion.includes(texto);
+  });
+
   // Manejador del Login simulado
   const handleLogin = (e) => {
     e.preventDefault();
@@ -633,14 +646,54 @@ function Dashboard() {
             <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
               placeholder="Buscar puntos de reciclaje, lugares, etc."
-              className="w-full pl-10 pr-4 py-2 bg-slate-100 border-transparent rounded-lg focus:outline-none focus:bg-white focus:ring-2 focus:ring-green-500 transition-all"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  alert(`Buscando: ${e.target.value}... (Esta función se conectará a la API de mapas próximamente)`);
-                }
-              }}
+              className="w-full pl-10 pr-8 py-2 bg-slate-100 border-transparent rounded-lg focus:outline-none focus:bg-white focus:ring-2 focus:ring-green-500 transition-all"
             />
+
+            {/* Botón X para limpiar */}
+            {busqueda && (
+              <button
+                type="button"
+                onClick={() => setBusqueda("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+
+            {/* Menú desplegable de resultados */}
+            {busqueda.trim() !== "" && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-slate-200 max-h-60 overflow-y-auto z-50">
+                {puntosFiltrados.length > 0 ? (
+                  puntosFiltrados.map((punto) => (
+                    <button
+                      key={punto.id}
+                      type="button"
+                      onClick={() => {
+                        setPuntoSeleccionado(punto);
+                        setCurrentView('dashboard');
+                        setBusqueda("");
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-green-50 border-b border-slate-100 last:border-0 flex items-start gap-3 transition-colors"
+                    >
+                      <MapPin className="w-4 h-4 text-green-600 mt-1 shrink-0" />
+                      <div>
+                        <p className="text-sm font-semibold text-slate-800">{punto.nombre || "Punto Verde"}</p>
+                        <p className="text-xs text-slate-500">
+                          {punto.dirección || punto.direccion || punto.tipo || "Ubicación en el mapa"}
+                        </p>
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-4 py-3 text-sm text-slate-500 text-center">
+                    No se encontraron puntos para "{busqueda}"
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-6 ml-4">
@@ -786,7 +839,7 @@ function Dashboard() {
                           )}
 
                           {/* Marcadores de Firebase */}
-                          {nearbyPoints.map((punto) => {
+                          {puntosFiltrados.map((punto) => {
                             let lat = punto.lat || punto.coordenadas?.latitude || punto.coordenadas?._lat;
                             let lng = punto.lng || punto.coordenadas?.longitude || punto.coordenadas?._long;
 
