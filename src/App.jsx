@@ -419,7 +419,8 @@ function Dashboard() {
 
 
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOut(auth);
     setCurrentView('login');
   };
 
